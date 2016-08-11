@@ -1,0 +1,5 @@
+# You need a settings_local.py file with some important 
+# variables in order for matchymatchy to work. You can 
+# use this .dist file as a template to build your 
+# settings_local.py file from.
+
