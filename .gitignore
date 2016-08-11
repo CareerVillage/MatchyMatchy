@@ -87,3 +87,6 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# MatchyMatchy csv folder should be ignored
+matchymatchy/csv/
