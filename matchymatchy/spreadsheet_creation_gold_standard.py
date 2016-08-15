@@ -5,6 +5,7 @@ import pickle
 import csv
 from collections import defaultdict
 import random
+import ast
 
 if (os.path.exists("/afs/ir/users/r/o/rohuns/Documents/deerwester.dict")):
 	dictionary = corpora.Dictionary.load('/afs/ir/users/r/o/rohuns/Documents/deerwester.dict')
@@ -25,12 +26,22 @@ question_id_order = dict(pickle.load( open("question_id_list.p", "rb")))
 user_id_order = list(pickle.load( open("user_id_list.p", "rb")))
 
 
-#load gold standard data
-x = 50 #number tbd
-random_user_list = random.sample(user_id_order, x) # list of user ids
+# #load gold standard data
+# x = 50 #number tbd
+# random_user_list = random.sample(user_id_order, x) # list of user ids
 
-y = 50 #number of random users
-new_question_list  = random.sample(question_id_order, y) # list of question ids
+# y = 50 #number of random users
+# new_question_list  = random.sample(question_id_order, y) # list of question ids
+
+
+
+
+#remove this part, force feeding
+random_user_list = ["4773"]
+new_question_list = ["20818"]
+
+
+
 
 #read and save question profiles in dict to their id number
 question_info = {}
@@ -57,7 +68,13 @@ for question in question_list:
 	question_info[question['id']] = question_text
 
 	#add individual tags to a dict
-	question_tags_dict[question['id']] = set(question_tags.split()) 
+	list_of_tags_questions = (question_tags.lower()).split()
+	set_of_tags_users = set()
+	for tag in list_of_tags_questions:
+		set_of_tags_users.add(tag)
+
+
+	question_tags_dict[question['id']] = set_of_tags_users
 
 
 
@@ -75,8 +92,17 @@ for user in user_list:
 	user_topics_text = (((user['topics_followed'])[3:-2]).replace("u'", "")).replace("'", "")
 	user_text = "Headline: " + user['headline'] + " Topics Followed: " +user_topics_text + " Industry: " + user['industry']
 	user_info[user['id']] = user_text
-	set_of_tags = set(user['topics_followed'])
-	user_tags_dict[user['id']] = set_of_tags
+	
+	#get tags of user
+	list_of_tags_users_string = user['topics_followed']
+	list_of_tags_users_string = ast.literal_eval(list_of_tags_users_string)
+	list_of_tags_users = list(list_of_tags_users_string)
+	set_of_tags_questions = set()
+
+	for tag in list_of_tags_users:
+		tag_lower = tag.lower()
+		set_of_tags_questions.add(tag_lower)
+	user_tags_dict[user['id']] = set_of_tags_questions
 
 
 
@@ -183,7 +209,7 @@ for user_id in random_user_list:
 			non_QnA_combo = sumproduct(probability_dict.values(), topic_list_user.values()) #sumproduct of new question and non QnA avg
 			QnA_combo = sumproduct(probability_dict.values(), topic_avg_previous_questions.values())
 			likelihood = ((non_QnA_combo + QnA_combo)/2)*100
-
+			#print likelihood
 			if (likelihood>=1.75):
 				tup = (user_id, question)
 				matches.append(tup)
@@ -195,6 +221,7 @@ for user_id in random_user_list:
 		else:
 			non_QnA_combo = sumproduct(probability_dict.values(), topic_list_user.values())
 			likelihood = (non_QnA_combo)*100
+			#print likelihood
 			if (likelihood>=1.75):
 				tup = (user_id, question)
 				matches.append(tup)
