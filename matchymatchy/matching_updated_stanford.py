@@ -47,6 +47,7 @@ for question in new_question_list:
 	new_question_dictionary[question] = corpus[index_in_corpus]
 
 
+matched = set()
 
 matches = [] #list of tuples (user id, question id)
 
@@ -137,6 +138,7 @@ for user_id in user_list:
 			if (likelihood>=2):
 				tup = (user_id, question)
 				matches.append(tup)
+				matched.add(question)
 		else:
 			non_QnA_combo = sumproduct(probability_dict.values(), topic_list_user.values())
 			likelihood = (non_QnA_combo)*100
@@ -144,12 +146,15 @@ for user_id in user_list:
 			if (likelihood>=2):
 				tup = (user_id, question)
 				matches.append(tup)
+				matched.add(question)
 
 print matches
 pickle.dump(matches, open("match_list_predicted.p", "wb"))
 	
 
-
+percent = (float(len(matched))/float(len(new_question_list)))*100
+print "Number of questions matched = %s" %len(matched)
+print "%s percent of questions were matched" %percent
 
 
 
