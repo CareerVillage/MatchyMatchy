@@ -3,6 +3,7 @@ from collections import defaultdict
 from nltk.stem.wordnet import WordNetLemmatizer
 import re
 from gensim import corpora
+from autocorrect import spell
 import sys  
 
 
@@ -438,9 +439,14 @@ def create_corpus_and_dictionary(documents):
 	really
 	im
 	i'm
-
-
-
+	free
+	problem
+	solving
+	hey
+	hi
+	hello
+	name
+	problem
 	college
 	question
 	answer
@@ -484,8 +490,6 @@ def create_corpus_and_dictionary(documents):
 	live
 	dream
 	kind
-
-
 	afghanistan
 	albania
 	algeria
@@ -725,90 +729,46 @@ def create_corpus_and_dictionary(documents):
 	zaire
 	zambia
 	zimbabwe
-
-
-
-
 	a
-
 	about
-
 	above
-
 	across
-
 	after
-
 	again
-
 	against
-
 	all
-
 	almost
-
 	alone
-
 	along
-
 	already
-
 	also
-
 	although
-
 	always
-
 	among
-
 	an
-
 	and
-
 	another
-
 	any
-
 	anybody
-
 	anyone
-
 	anything
-
 	anywhere
-
 	are
-
 	area
-
 	areas
-
 	around
-
 	as
-
 	ask
-
 	asked
-
 	asking
-
 	asks
-
 	at
-
 	away
-
 	b
-
 	back
-
 	backed
-
 	backing
-
 	backs
-
 	be
 
 	became
@@ -1191,7 +1151,121 @@ def create_corpus_and_dictionary(documents):
 
 	newest
 
-	next
+	nextturned
+
+	turning
+
+	turns
+
+	two
+
+	u
+
+	under
+
+	until
+
+	up
+
+	upon
+
+	us
+
+	use
+
+	used
+
+	uses
+
+	v
+
+	very
+
+	w
+
+	want
+
+	wanted
+
+	wanting
+
+	wants
+
+	was
+
+	way
+
+	ways
+
+	we
+
+	well
+
+	wells
+
+	went
+
+	were
+
+	what
+
+	when
+
+	where
+
+	whether
+
+	which
+
+	while
+
+	who
+
+	whole
+
+	whose
+
+	why
+
+	will
+
+	with
+
+	within
+
+	without
+
+	work
+
+	worked
+
+	working
+
+	works
+
+	would
+
+	x
+
+	y
+
+	year
+
+	years
+
+	yet
+
+	you
+
+	young
+
+	younger
+
+	youngest
+
+	your
+
+	yours
 
 	no
 
@@ -1469,121 +1543,7 @@ def create_corpus_and_dictionary(documents):
 
 	turn
 
-	turned
-
-	turning
-
-	turns
-
-	two
-
-	u
-
-	under
-
-	until
-
-	up
-
-	upon
-
-	us
-
-	use
-
-	used
-
-	uses
-
-	v
-
-	very
-
-	w
-
-	want
-
-	wanted
-
-	wanting
-
-	wants
-
-	was
-
-	way
-
-	ways
-
-	we
-
-	well
-
-	wells
-
-	went
-
-	were
-
-	what
-
-	when
-
-	where
-
-	whether
-
-	which
-
-	while
-
-	who
-
-	whole
-
-	whose
-
-	why
-
-	will
-
-	with
-
-	within
-
-	without
-
-	work
-
-	worked
-
-	working
-
-	works
-
-	would
-
-	x
-
-	y
-
-	year
-
-	years
-
-	yet
-
-	you
-
-	young
-
-	younger
-
-	youngest
-
-	your
-
-	yours
+	
 
 
 
@@ -1625,25 +1585,42 @@ def create_corpus_and_dictionary(documents):
 	""".split()) #http://www.ranks.nl/stopwords and http://xpo6.com/list-of-english-stop-words/
 	# extra stop words to play with
 	# develop the corpus for the questions
-	
+	# reload(sys)  
+	# sys.setdefaultencoding('utf8')
 	texts = []
+	spell_checked_words = {}
+	document_length = float(len(documents))
+	counter = 0.0
 
+	print"processing docs"
 	for document in documents:
 		document = document.lower()
 		document_split = re.split('[?@&!;/.,\s+]', document)
 		clean_document_split = filter(lambda a: a != '', document_split)
-		
-		#lemmatizze
+
+
+		#lemmatize and spell check
+		lemmatized_and_spelled_document_split = []
 		lmtzr = WordNetLemmatizer()
-		for word in range(0, len(clean_document_split)):
-			clean_document_split[word] = lmtzr.lemmatize(clean_document_split[word], 'n')
+		for word in clean_document_split:
+			if word not in stoplist:
+				word_spelled = ""
+				if(word in spell_checked_words):
+					word_spelled = spell_checked_words[word]
+				else:
+					word_spelled = spell(word)
+					spell_checked_words[word] = word_spelled
+
+				word_spelled = spell(word)
+				word_lemmatized = lmtzr.lemmatize(word_spelled, 'n')
+				lemmatized_and_spelled_document_split.append(word_lemmatized)
 
 
 		#POS tagger
-		pos_tuple_list = nltk.pos_tag(clean_document_split)
+		pos_tuple_list = nltk.pos_tag(lemmatized_and_spelled_document_split)
 		document_list = []
 		for tup in pos_tuple_list:
-			if tup[1] == "NN":
+			if tup[1] == "NN" or tup[1] == "NNS":
 				word = tup[0]
 				if word not in stoplist:
 					document_list.append(word)
@@ -1656,13 +1633,18 @@ def create_corpus_and_dictionary(documents):
 			word = document_split[x]
 			if(word.find('-') != -1):
 				separated = re.split('-', word)
+				#lemmatize and spell check the separated words and then add it to the list of words for that document
 				for token in separated:
+					word = lmtzr.lemmatize(word, 'n')
 					document_list.append(token)
 	
 
 
 
 		texts.append(document_list)
+		counter += 1
+		percent = (counter/ document_length)*100
+		print "\r%s of documents have been processed" %percent
 
 
 	#print texts[1]

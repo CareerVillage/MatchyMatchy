@@ -1581,8 +1581,8 @@ def create_corpus_and_dictionary(documents):
 	""".split()) #http://www.ranks.nl/stopwords and http://xpo6.com/list-of-english-stop-words/
 	# extra stop words to play with
 	# develop the corpus for the questions
-	# reload(sys)  
-	# sys.setdefaultencoding('utf8')
+	reload(sys)  
+	sys.setdefaultencoding('utf8')
 	texts = []
 
 	for document in documents:
@@ -1600,7 +1600,7 @@ def create_corpus_and_dictionary(documents):
 		pos_tuple_list = nltk.pos_tag(clean_document_split)
 		document_list = []
 		for tup in pos_tuple_list:
-			if tup[1] == "NN":
+			if tup[1] == "NN" or tup[1] =="NNS":
 				word = tup[0]
 				if word not in stoplist:
 					document_list.append(word)
