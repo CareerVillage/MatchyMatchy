@@ -26,19 +26,12 @@ question_id_order = dict(pickle.load( open("question_id_list.p", "rb")))
 user_id_order = list(pickle.load( open("user_id_list.p", "rb")))
 
 
-# #load gold standard data
-# x = 50 #number tbd
-# random_user_list = random.sample(user_id_order, x) # list of user ids
+#load gold standard data
+x = 50 #number tbd
+random_user_list = random.sample(user_id_order, x) # list of user ids
 
-# y = 50 #number of random users
-# new_question_list  = random.sample(question_id_order, y) # list of question ids
-
-
-
-
-#remove this part, force feeding
-random_user_list = ["4773"]
-new_question_list = ["20818"]
+y = 50 #number of random users
+new_question_list  = random.sample(question_id_order, y) # list of question ids
 
 
 
@@ -210,7 +203,7 @@ for user_id in random_user_list:
 			QnA_combo = sumproduct(probability_dict.values(), topic_avg_previous_questions.values())
 			likelihood = ((non_QnA_combo + QnA_combo)/2)*100
 			#print likelihood
-			if (likelihood>=1.75):
+			if (likelihood>=1.50):
 				tup = (user_id, question)
 				matches.append(tup)
 				matched.add(question)
@@ -222,7 +215,7 @@ for user_id in random_user_list:
 			non_QnA_combo = sumproduct(probability_dict.values(), topic_list_user.values())
 			likelihood = (non_QnA_combo)*100
 			#print likelihood
-			if (likelihood>=1.75):
+			if (likelihood>=1.50):
 				tup = (user_id, question)
 				matches.append(tup)
 				matched.add(question)
