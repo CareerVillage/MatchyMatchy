@@ -8,6 +8,9 @@ import sys
 
 
 def create_corpus_and_dictionary(documents):
+	reload(sys)  
+	sys.setdefaultencoding('utf8')
+
 	stoplist = set("""
 	a
 	about
@@ -435,14 +438,9 @@ def create_corpus_and_dictionary(documents):
 	really
 	im
 	i'm
-	free
-	problem
-	solving
-	hey
-	hi
-	hello
-	name
-	problem
+
+
+
 	college
 	question
 	answer
@@ -486,6 +484,8 @@ def create_corpus_and_dictionary(documents):
 	live
 	dream
 	kind
+
+
 	afghanistan
 	albania
 	algeria
@@ -725,46 +725,90 @@ def create_corpus_and_dictionary(documents):
 	zaire
 	zambia
 	zimbabwe
+
+
+
+
 	a
+
 	about
+
 	above
+
 	across
+
 	after
+
 	again
+
 	against
+
 	all
+
 	almost
+
 	alone
+
 	along
+
 	already
+
 	also
+
 	although
+
 	always
+
 	among
+
 	an
+
 	and
+
 	another
+
 	any
+
 	anybody
+
 	anyone
+
 	anything
+
 	anywhere
+
 	are
+
 	area
+
 	areas
+
 	around
+
 	as
+
 	ask
+
 	asked
+
 	asking
+
 	asks
+
 	at
+
 	away
+
 	b
+
 	back
+
 	backed
+
 	backing
+
 	backs
+
 	be
 
 	became
@@ -1147,121 +1191,7 @@ def create_corpus_and_dictionary(documents):
 
 	newest
 
-	nextturned
-
-	turning
-
-	turns
-
-	two
-
-	u
-
-	under
-
-	until
-
-	up
-
-	upon
-
-	us
-
-	use
-
-	used
-
-	uses
-
-	v
-
-	very
-
-	w
-
-	want
-
-	wanted
-
-	wanting
-
-	wants
-
-	was
-
-	way
-
-	ways
-
-	we
-
-	well
-
-	wells
-
-	went
-
-	were
-
-	what
-
-	when
-
-	where
-
-	whether
-
-	which
-
-	while
-
-	who
-
-	whole
-
-	whose
-
-	why
-
-	will
-
-	with
-
-	within
-
-	without
-
-	work
-
-	worked
-
-	working
-
-	works
-
-	would
-
-	x
-
-	y
-
-	year
-
-	years
-
-	yet
-
-	you
-
-	young
-
-	younger
-
-	youngest
-
-	your
-
-	yours
+	next
 
 	no
 
@@ -1539,7 +1469,121 @@ def create_corpus_and_dictionary(documents):
 
 	turn
 
-	
+	turned
+
+	turning
+
+	turns
+
+	two
+
+	u
+
+	under
+
+	until
+
+	up
+
+	upon
+
+	us
+
+	use
+
+	used
+
+	uses
+
+	v
+
+	very
+
+	w
+
+	want
+
+	wanted
+
+	wanting
+
+	wants
+
+	was
+
+	way
+
+	ways
+
+	we
+
+	well
+
+	wells
+
+	went
+
+	were
+
+	what
+
+	when
+
+	where
+
+	whether
+
+	which
+
+	while
+
+	who
+
+	whole
+
+	whose
+
+	why
+
+	will
+
+	with
+
+	within
+
+	without
+
+	work
+
+	worked
+
+	working
+
+	works
+
+	would
+
+	x
+
+	y
+
+	year
+
+	years
+
+	yet
+
+	you
+
+	young
+
+	younger
+
+	youngest
+
+	your
+
+	yours
 
 
 
@@ -1581,8 +1625,7 @@ def create_corpus_and_dictionary(documents):
 	""".split()) #http://www.ranks.nl/stopwords and http://xpo6.com/list-of-english-stop-words/
 	# extra stop words to play with
 	# develop the corpus for the questions
-	# reload(sys)  
-	# sys.setdefaultencoding('utf8')
+	
 	texts = []
 
 	for document in documents:
