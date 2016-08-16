@@ -21,13 +21,16 @@ question_id_order = {}
 counter = 0
 for question in question_list:
 	question_body_modified =  (question["body"])[3:-4] #takes out the paragraph html headers
-	question_text = question['title'] + " "+ question_body_modified
+	question_tags = question['tagname_list']
+	question_text = question['title'] + " "+ question_body_modified + question_tags
+	
 	question_text = question_text.replace("<p>", "")
 	question_text = question_text.replace("</p>", "")
 	question_text = question_text.replace("<li>", "")
 	question_text = question_text.replace("</li>", "")
 	question_text = question_text.replace("<br>", "")
 	question_text = question_text.replace("<br>", "")
+
 	
 	documents.append(question_text)
 	question_id_order[question["id"]] = counter
