@@ -3,9 +3,7 @@ from collections import defaultdict
 from nltk.stem.wordnet import WordNetLemmatizer
 import re
 from gensim import corpora
-import sys 
-from autocorrect import spell
-
+import sys  
 
 
 
@@ -299,7 +297,6 @@ def create_corpus_and_dictionary(documents):
 	on
 	once
 	one
-
 	only
 	onto
 	or
@@ -1629,51 +1626,41 @@ def create_corpus_and_dictionary(documents):
 	sys.setdefaultencoding('utf8')
 	texts = []
 
-	counter = 0.00
 	for document in documents:
 		document = document.lower()
 		document_split = re.split('[?@&!;/.,\s+]', document)
 		clean_document_split = filter(lambda a: a != '', document_split)
 		
-		#seperates based on dashes
-		length = len(clean_document_split)
-		for x in range (0, length):
-			word = clean_document_split[x]
-			if(word.find('-') != -1):
-				separated = re.split('-', word)
-				for token in separated:
-					clean_document_split.append(token)
-
-		
-		#spell check and lemmatize
+		#lemmatizze
 		lmtzr = WordNetLemmatizer()
-		for index in range(0, len(clean_document_split)):
-			word = clean_document_split[index]
-			word = spell(word)
-			word = lmtzr.lemmatize(word, 'n')
-			clean_document_split[index] = word
+		for word in range(0, len(clean_document_split)):
+			clean_document_split[word] = lmtzr.lemmatize(clean_document_split[word], 'n')
 
-		clean_document_split = filter(lambda a: a != '', clean_document_split)
+
 		#POS tagger
 		pos_tuple_list = nltk.pos_tag(clean_document_split)
 		document_list = []
 		for tup in pos_tuple_list:
-			if (tup[1] == "NN") or (tup[1] == "NNS"):
+			if tup[1] == "NN":
 				word = tup[0]
 				if word not in stoplist:
 					document_list.append(word)
 					#print word
 
 
-
-		percent = float(counter/len(documents))*100
-		print "\rProcessced %s percent of all documents" %percent
-		counter += 1
-
-
-
-	texts.append(document_list)
+		#seperates based on dashes
+		length = len(document_split)
+		for x in range (0, length):
+			word = document_split[x]
+			if(word.find('-') != -1):
+				separated = re.split('-', word)
+				for token in separated:
+					document_list.append(token)
 	
+
+
+
+		texts.append(document_list)
 
 
 	#print texts[1]
@@ -1682,7 +1669,7 @@ def create_corpus_and_dictionary(documents):
 		for token in text:
 				frequency[token] += 1
 
-	print frequency.keys()
+	
 
 	texts = [[token for token in text if frequency[token] > 1] for text in texts]
 	dictionary = corpora.Dictionary(texts)
