@@ -135,7 +135,7 @@ for user_id in user_list:
 			QnA_combo = sumproduct(probability_dict.values(), topic_avg_previous_questions.values())
 			likelihood = ((non_QnA_combo + QnA_combo)/2)*100
 			#print likelihood
-			if (likelihood>=1.75):
+			if (likelihood>=1.85):
 				tup = (user_id, question)
 				matches.append(tup)
 				matched.add(question)
@@ -143,7 +143,7 @@ for user_id in user_list:
 			non_QnA_combo = sumproduct(probability_dict.values(), topic_list_user.values())
 			likelihood = (non_QnA_combo)*100
 			#print likelihood
-			if (likelihood>=1.75):
+			if (likelihood>=1.85):
 				tup = (user_id, question)
 				matches.append(tup)
 				matched.add(question)

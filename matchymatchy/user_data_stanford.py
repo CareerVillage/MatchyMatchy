@@ -17,7 +17,7 @@ user_id_order = {}
 
 counter = 0
 for row in raw_user_data:
-	if(row["account_type"] != "S"):
+	if(row["account_type"] == "P"):
 		user_list.append(row)
 		user_id_order[row["id"]] = counter
 		counter += 1

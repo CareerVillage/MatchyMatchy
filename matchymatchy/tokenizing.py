@@ -726,45 +726,85 @@ def create_corpus_and_dictionary(documents):
 	zambia
 	zimbabwe
 	a
+
 	about
+
 	above
+
 	across
+
 	after
+
 	again
+
 	against
+
 	all
+
 	almost
+
 	alone
+
 	along
+
 	already
+
 	also
+
 	although
+
 	always
+
 	among
+
 	an
+
 	and
+
 	another
+
 	any
+
 	anybody
+
 	anyone
+
 	anything
+
 	anywhere
+
 	are
+
 	area
+
 	areas
+
 	around
+
 	as
+
 	ask
+
 	asked
+
 	asking
+
 	asks
+
 	at
+
 	away
+
 	b
+
 	back
+
 	backed
+
 	backing
+
 	backs
+
 	be
 
 	became
@@ -1147,121 +1187,7 @@ def create_corpus_and_dictionary(documents):
 
 	newest
 
-	nextturned
-
-	turning
-
-	turns
-
-	two
-
-	u
-
-	under
-
-	until
-
-	up
-
-	upon
-
-	us
-
-	use
-
-	used
-
-	uses
-
-	v
-
-	very
-
-	w
-
-	want
-
-	wanted
-
-	wanting
-
-	wants
-
-	was
-
-	way
-
-	ways
-
-	we
-
-	well
-
-	wells
-
-	went
-
-	were
-
-	what
-
-	when
-
-	where
-
-	whether
-
-	which
-
-	while
-
-	who
-
-	whole
-
-	whose
-
-	why
-
-	will
-
-	with
-
-	within
-
-	without
-
-	work
-
-	worked
-
-	working
-
-	works
-
-	would
-
-	x
-
-	y
-
-	year
-
-	years
-
-	yet
-
-	you
-
-	young
-
-	younger
-
-	youngest
-
-	your
-
-	yours
+	next
 
 	no
 
@@ -1539,7 +1465,121 @@ def create_corpus_and_dictionary(documents):
 
 	turn
 
-	
+	turned
+
+	turning
+
+	turns
+
+	two
+
+	u
+
+	under
+
+	until
+
+	up
+
+	upon
+
+	us
+
+	use
+
+	used
+
+	uses
+
+	v
+
+	very
+
+	w
+
+	want
+
+	wanted
+
+	wanting
+
+	wants
+
+	was
+
+	way
+
+	ways
+
+	we
+
+	well
+
+	wells
+
+	went
+
+	were
+
+	what
+
+	when
+
+	where
+
+	whether
+
+	which
+
+	while
+
+	who
+
+	whole
+
+	whose
+
+	why
+
+	will
+
+	with
+
+	within
+
+	without
+
+	work
+
+	worked
+
+	working
+
+	works
+
+	would
+
+	x
+
+	y
+
+	year
+
+	years
+
+	yet
+
+	you
+
+	young
+
+	younger
+
+	youngest
+
+	your
+
+	yours
 
 
 
@@ -1600,7 +1640,7 @@ def create_corpus_and_dictionary(documents):
 		pos_tuple_list = nltk.pos_tag(clean_document_split)
 		document_list = []
 		for tup in pos_tuple_list:
-			if tup[1] == "NN" or tup[1] =="NNS":
+			if tup[1] == "NN":
 				word = tup[0]
 				if word not in stoplist:
 					document_list.append(word)
