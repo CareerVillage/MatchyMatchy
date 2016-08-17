@@ -27,111 +27,113 @@ user_id_order = list(pickle.load( open("user_id_list.p", "rb")))
 
 
 #load gold standard data
-new_question_list = ['7918']
+#new_question_list = ['7918']
 
-# new_question_list= """3168
-# 30181
-# 27867
-# 25338
-# 4326
-# 25885
-# 7918
-# 6740
-# 6457
-# 3015
-# 12856
-# 24108
-# 29400
-# 23853
-# 3431
-# 20251
-# 29743
-# 18385
-# 8844
-# 30440
-# 7682
-# 30175
-# 19513
-# 21872
-# 27929
-# 23669
-# 3413
-# 671
-# 23947
-# 35578
-# 37504
-# 103
-# 12062
-# 34254
-# 35959
-# 3177
-# 17486
-# 23322
-# 28712
-# 1556
-# 4014
-# 26021
-# 26032
-# 36817
-# 32438
-# 30208
-# 29922
-# 30530
-# 7402""".split() 
+new_question_list= """
+33245
+3168
+30181
+27867
+25338
+4326
+25885
+7918
+6740
+6457
+3015
+12856
+24108
+29400
+23853
+3431
+20251
+29743
+18385
+8844
+30440
+7682
+30175
+19513
+21872
+27929
+23669
+3413
+671
+23947
+35578
+37504
+103
+12062
+34254
+35959
+3177
+17486
+23322
+28712
+1556
+4014
+26021
+26032
+36817
+32438
+30208
+29922
+30530
+7402""".split() 
 
 
-random_user_list = ['19575']
-# random_user_list = """
-# 19575
-# 7994
-# 11527
-# 8952
-# 13892
-# 7674
-# 14697
-# 9386
-# 2379
-# 14076
-# 14198
-# 479
-# 3426
-# 2867
-# 12137
-# 6363
-# 14371
-# 10505
-# 7619
-# 7655
-# 22247
-# 3920
-# 2203
-# 7709
-# 11536
-# 14251
-# 5167
-# 6627
-# 14452
-# 5941
-# 16494
-# 8209
-# 13900
-# 8890
-# 15059
-# 13726
-# 22308
-# 14482
-# 11280
-# 12212
-# 992
-# 9354
-# 12626
-# 15586
-# 11509
-# 21768
-# 21327
-# 8822
-# 1819
-# 10176""".split()
+random_user_list = """
+19575
+7994
+11527
+8952
+13892
+7674
+14697
+9386
+2379
+14076
+14198
+479
+3426
+2867
+12137
+6363
+14371
+10505
+7619
+7655
+22247
+3920
+2203
+7709
+11536
+14251
+5167
+6627
+14452
+5941
+16494
+8209
+13900
+8890
+15059
+13726
+22308
+14482
+11280
+12212
+992
+9354
+12626
+15586
+11509
+21768
+21327
+8822
+1819
+10176
+""".split()
 #random_user_list = random.sample(user_id_order, x) # list of user ids
 
 
@@ -231,10 +233,10 @@ for user_id in random_user_list:
 	#topics for user	
 	topics_user = model.get_document_topics(corpus_users[user_id_index], minimum_probability=0, minimum_phi_value=None, per_word_topics=False) 
 	# print "non QA data"
-	print model[corpus_users[user_id_index]]
+	#print model[corpus_users[user_id_index]]
 
-	for tup in corpus_users[user_id_index]
-		print dictionary_users[tup[0]]
+	# for tup in corpus_users[user_id_index]
+	# 	print dictionary_users[tup[0]]
 
 	# print topics_user
 
@@ -271,7 +273,7 @@ for user_id in random_user_list:
 		for topic in topics_sum:
 			topic_avg_previous_questions[topic] = (topics_sum[topic])/len(question_list_probabilities)
 		
-		print topic_avg_previous_questions
+		#print topic_avg_previous_questions
 
 
 	#developing average probability topic distribution for all new questions 
@@ -283,9 +285,9 @@ for user_id in random_user_list:
 		# print question_probs
 
 		# print "alternate"
-		print model[new_question_dictionary[question]]
-		for tup in new_question_dictionary[question]:
-			print dictionary[tup[0]]
+		#print model[new_question_dictionary[question]]
+		# for tup in new_question_dictionary[question]:
+		# 	print dictionary[tup[0]]
 
 
 
@@ -343,7 +345,7 @@ for user_id in random_user_list:
 			# 	larger_val = QnA_combo
 
 			# likelihood = larger_val
-			print likelihood
+			#print likelihood
 			if (likelihood>=2):
 				tup = (user_id, question)
 				matches.append(tup)
@@ -355,8 +357,8 @@ for user_id in random_user_list:
 		else:
 			non_QnA_combo = sumproduct(probability_dict, topic_list_user)
 			likelihood = (non_QnA_combo)*100
-			print likelihood
-			if (likelihood>=4):
+			#print likelihood
+			if (likelihood>=2):
 				tup = (user_id, question)
 				matches.append(tup)
 				matched.add(question)
@@ -368,7 +370,7 @@ pickle.dump(matches, open("match_list_predicted.p", "wb"))
 # actual matching completion resulting in a list of tuples in a list called "matches"
 
 #filling out the csv
-with open('/afs/ir/users/r/o/rohuns/Documents/spreadsheet_manual_review_qa.csv', 'wb') as f:
+with open('/afs/ir/users/r/o/rohuns/Documents/spreadsheet.csv', 'wb') as f:
     writer = csv.writer(f)
     writer.writerow(['question_id','question_text','author_id','author_text', 'topic_model_match', 'string_match'])
 
@@ -379,9 +381,9 @@ print "Number of questions matched = %s" %len(matched)
 print "%s percent of questions were matched" %percent
 
 
-lis_topic_words = model.get_topic_terms(89, topn =20)
-for tup in lis_topic_words:
-	print dictionary[tup[0]]
+# lis_topic_words = model.get_topic_terms(89, topn =20)
+# for tup in lis_topic_words:
+# 	print dictionary[tup[0]]
 
 
 

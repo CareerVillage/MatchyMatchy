@@ -12,7 +12,7 @@ else:
 	print("Could not load the dictionary")
 
 
-model = models.LdaModel(corpus, id2word=dictionary, num_topics = 500, passes = 100)
+model = models.LdaModel(corpus, id2word=dictionary, num_topics = 170, passes = 100)
 
 # hdp = models.HdpModel(corpus, dictionary)
 # lda_conversion = hdp.hdp_to_lda()

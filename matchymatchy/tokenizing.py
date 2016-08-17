@@ -1631,7 +1631,9 @@ def create_corpus_and_dictionary(documents):
 	all
 	idea
 	https:
-	
+	hurt
+	study5
+
 
 
 
