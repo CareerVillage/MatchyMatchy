@@ -5,6 +5,13 @@ import re
 from gensim import corpora
 import sys  
 
+def is_not_number(s):
+    try:
+        complex(s) # for int, long, float and complex
+    except ValueError:
+        return True
+
+    return False
 
 
 def create_corpus_and_dictionary(documents):
@@ -1615,6 +1622,16 @@ def create_corpus_and_dictionary(documents):
 	grad
 	Aimee
 	aimee
+	isnt
+	career
+	awful
+	hard
+	problem
+	difficult
+	all
+	idea
+	https:
+	
 
 
 
@@ -1627,7 +1644,7 @@ def create_corpus_and_dictionary(documents):
 
 	for document in documents:
 		document = document.lower()
-		document_split = re.split('[?@&!;/.,\s+]', document)
+		document_split = re.split('[()""<>	?@&!;/.,\s+]', document)
 		clean_document_split = filter(lambda a: a != '', document_split)
 		
 		#lemmatizze
@@ -1656,10 +1673,14 @@ def create_corpus_and_dictionary(documents):
 				for token in separated:
 					document_list.append(token)
 	
+		document_list_final = []
+		for token in document_list:
+			if(not(token.isdigit())):
+				if(len(token)>2):
+					document_list_final.append(token)
+				#document_list_final.append(token)
 
-
-
-		texts.append(document_list)
+		texts.append(document_list_final)
 
 
 	#print texts[1]
@@ -1668,7 +1689,9 @@ def create_corpus_and_dictionary(documents):
 		for token in text:
 				frequency[token] += 1
 
-	
+
+	for token in frequency:
+		print token
 
 	texts = [[token for token in text if frequency[token] > 1] for text in texts]
 	dictionary = corpora.Dictionary(texts)
