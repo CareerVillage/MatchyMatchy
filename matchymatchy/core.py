@@ -2,6 +2,8 @@
 # defines the "universe" of possible matches, calculates who should get
 # notified for each question, and then sends the notifications.
 
+# This is now done
+
 #############################################
 # Imports
 #############################################
