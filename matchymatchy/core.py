@@ -8,10 +8,13 @@
 
 import Queue
 from datetime import datetime, timedelta
-from forum.models import Question, Users
+from django.core.management.base import BaseCommand
 from collections import defaultdict
 from forum.utils.mail import send_template_email
 from forum.models import User, Question, Tag, MarkedTag
+from forum import settings
+from django.db.models import Q
+from django.db.models import Count
 
 
 
@@ -21,34 +24,39 @@ from forum.models import User, Question, Tag, MarkedTag
 # Begin calculation and send notifications
 #############################################
 
-def email_notification(valid_users, node_email_max, notifications_template, notifications_lookup):
+def email_notification(node_email_max, notifications_template, notifications_lookup):
     question_email_count = defaultdict(int)#keeps count of how many times the email has been notified and is initialized with the key being all valid questions and the intial count to 0    
-    valid_questions = get_valid_questions() #filters for deleted, closed, comments, and greater than or equal to 4 answers. Applicable for all users
-    valid_users = get_valid_users(notifications_lookup)
     
-    for user in valid_users:
-        user_tags = user.tag_selections.all(notifications_timedelta) #why is notifications_timedelta passed in here? I may have done this on accident but want to check with you. I looked at how user was setup and could not tell
-        
+    for user in get_valid_users(notifications_lookup):
+        # null, false, or true
+        #users can follow countries global ,specific, or none
+        #if they never follow countries (treat as global)
+        #else 
+            #(if notif... == false or the follow global) treat them sas global
+            #else () only send notifications for countries they follow
         # filters for country tags
-        if user.notify_countries_only:
-                country_tags = [marked_tag.tag.id for marked_tag in
-                                MarkedTag.objects.filter(
-                                    user=user,
-                                    tag__tag_types__name__iexact='country')]
-                # If the user follows 'Global' then send all the questions
-                try:
-                    tag_global = Tag.objects.get(code='00').id
-                except Tag.DoesNotExist:
-                    print 'Tag "Global" does not exist'
-                if country_tags and not (tag_global in country_tags):
-                    valid_questions_country = questions.filter(tags__id__in=country_tags)
-                elif not country_tags:
-                    valid_questions_country = None
-
+        if (user.notify_countries_only==False): #set to false(meaning they want global)
+            questions_for_current_user = get_valid_questions()
+        else: #null or true
+           country_tags = [marked_tag.tag.id for marked_tag in
+                        MarkedTag.objects.filter(
+                            user=user,
+                            tag__tag_types__name__iexact='country')]
+            # If the user follows 'Global' then send all the questions
+            try:
+                tag_global = Tag.objects.get(code='00').id
+            except Tag.DoesNotExist:
+                print 'Tag "Global" does not exist'
+            if country_tags and not (tag_global in country_tags): #global not in country tags
+                questions_for_current_user = get_valid_questions().filter(tags__id__in=country_tags) 
+            # elif not country_tags: #do not follow any countries
+            #     questions_for_current_user = None
+            else: #has no country tags or follow global
+                questions_for_current_user = get_valid_questions()
 
 
         #Filter for user specific filters (tags, answered before)
-        questions_for_current_user = valid_questions_country.exclude(
+        questions_for_current_user = questions_for_current_user.exclude(
             children__author=user
             ).filter(
                 tags__id__in=user.tag_selections.filter(
@@ -56,13 +64,12 @@ def email_notification(valid_users, node_email_max, notifications_template, noti
                 ).values_list('tag_id', flat=True).query
             ).distinct()
 
-        #excludes if user previously notified for this question (TO DO)
-        user_nodes_notified_in_the_past = EmailSent.objects.filter(recipient=user).values_list('nodes').distinct() # TO DO: REVIEW THIS CODE
-
+            
+        user_node_ids_notified_in_the_past = EmailSent.objects.filter(recipient=user, nodes__node_type='question', nodes__isnull=False).values_list('nodes', flat=True).distinct()
 
         user_question_queue = Queue.PriorityQueue()  #initialize queue of questions for the user
         for question in questions_for_current_user:
-            if not question in user_nodes_notified_in_the_past: #check if the user has been notified about the question
+            if not question.id in user_nodes_notified_in_the_past: #check if the user has been notified about the question
                 if not question_email_count[question] or not question_email_count[question] > 40: #check if the question has not already been emailed too many times
                     score = calculate_score(user, question) * (-1) # negative to be able to use a priority queue properly (lower numbers are higher priority)
                     user_question_queue.put(question, score) #add question to the queue
@@ -79,13 +86,11 @@ def email_notification(valid_users, node_email_max, notifications_template, noti
 
         #email questions
         if email_questions:
-                print 'Sending notification to %s with %d questions.' % (user, email_questions.count())
+                print 'Sending notification to %s with %d questions.' % (user, len(email_questions))
 
                 send_template_email([user], notifications_template, {
-                    'questions': questions,
-                }, nodes=questions)
-
-
+                    'questions': email_questions,
+                }, nodes=email_questions)
 
 
 
@@ -105,87 +110,58 @@ def calculate_score(user, question):
     return score
 
 def calculate_timeliness(question):
-    today = datetime.date.today()
-    time_delta = today - question.dateAsked() #TO DO check if this is right?
+    today = datetime.today() #checked again and this still does not work for me
+    time_delta = today - question.added_at 
 
-    #TO DO is the format for time_delta correct
-    if (time_delta < 7): # 1 week
-        one_week = 5 #used a random number
-        return one_week
-    elif (time_delta < 30): # 1 month
-        one_month = 4
-        return one_month
-    elif (time_delta < 90):
-        three_month = 3
-        return three_month
-    elif (time_delta < 180):
-        six_month = 2
-        return six_month
+    if (time_delta < timedelta(days =7)): # 1 week
+        score = 5
+    elif (time_delta < timedelta(days =30)): # 1 month
+        score = 4
+    elif (time_delta < timedelta(days =90)):
+        score = 3
+    elif (time_delta < timedelta(days =180)):
+        score =2
     else:
-        nine_month = 1
-        return nine_month
+        score = 1
+
+    return score
 
 def calculate_need(question):
-    number_of_answers = question.numberOfAnswers()
-
+    number_of_answers = Answer.objects.filter(parent=question).count()
     if (number_of_answers < 1): 
-        score_boost = 5 #used a random number
-        return score_boost
+        score_boost = 5 
     elif (number_of_answers < 2): 
         score_boost = 3
-        return score_boost
     elif (number_of_answers < 3):
         score_boost = 2
-        return score_boost
-    else (number_of_answers < 4):
+    else:
         score_boost = 1
-        return score_boost
-
+    return score_boost
 
 def calculate_popularity(question):
-    question_views = question.numberOfViews() 
-    score = 0
-    if(question_views > ): #TO DO determine what number of views we consider high and low
+    question_views = question.extra_count
+    if(question_views > 1000): 
         score = 5
-        return score
-    elif(question_views > ):
+    elif(question_views > 500):
         score = 4
-        return score
-    elif(question_views > ):
+    elif(question_views > 250):
         score = 3
-        return score
-    elif(question_views > ):
+    elif(question_views > 125):
         score = 2
-        return score
-    elif(question_views > ):
+    elif(question_views > 50):
         score = 1
-        return score
     else:
-        return score
+        score = 0
 
-    #similar to the last two create some sort of a sliding scale for incrementing the score as views go up with a max cap of influence
+    return score
 
-    return max_score
-
-def interacted_before(user, current_question):
-    questions_answered = user.questionsAnswered() #TO DO is this the right syntax, I went into the user model and think this is right
-    interacted = false
-    for question in questions_answered:
-        if (question.student == current_question.student):
-            interacted = true
-            break
-    if interacted:
+def interacted_before(user, question):
+    students_questions = Question.objects.filter(author=question.author)
+    if students_questions.filter(children__author=user).count() > 0:
         interacted_score = 5
-        return interacted_score
     else:
-        not_interacted_score = 0
-        return not_interacted_score
-
-
-
-
-
-
+        interacted_score = 0
+    return interacted_score
 
 
 
@@ -193,40 +169,23 @@ def interacted_before(user, current_question):
 # Define matchable universe of items
 #############################################
 
-
-
-
-
-
-
-
 def get_valid_questions():
-    today = datetime.date.today()
-    earliest_valid_date = today - datetime.timedelta(weeks=(52/12*9))
+    today = datetime.today() 
+    earliest_valid_date = today -timedelta(weeks = (52/12*9))
     q = (Question.objects
         .filter_state(deleted=False, closed=False)
         .filter(added_at__gt=earliest_valid_date)
         # Django gets strange when you filter before annotating
-        .filter(children__node_type='answer') # Exclude comments  #TO DO why is this needed?
+        .filter(children__node_type='answer') # Exclude comments 
         .annotate(c=Count('children')) # Count answer children
         .filter(c__lt=4) # filter out questions with 4+ answers
         )
     return q
 
-
-
 def get_valid_users(notifications_lookup):
     q = Q(notifications=notifications_lookup)
-        if settings.djsettings.DEFAULT_NOTIFICATIONS == notifications_lookup:
-            q |= Q(notifications=None)
+    if settings.djsettings.DEFAULT_NOTIFICATIONS == notifications_lookup:
+        q |= Q(notifications=None)
 
     u = User.objects.filter(q)
     return u
-
-
-
-
-
-
-
-
