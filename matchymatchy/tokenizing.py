@@ -6,7 +6,7 @@ from gensim import corpora
 import sys  
 
 
-
+# TO DO: Separate the following function into two pieces. The first one accepts one object at a time and returns a string that is the clean profile for that object
 def create_corpus_and_dictionary(documents):
 	stoplist = set("""
 	a
@@ -1658,10 +1658,10 @@ def create_corpus_and_dictionary(documents):
 	
 
 
-
+# TO DO: Instead of appending the document_list to texts, just return the document_list
 		texts.append(document_list)
 
-
+# TO DO: EVERYTHING AFTER THIS IS FOR CREATING THE CORPUS AND DICTIONARY THAT WILL GO INTO THE TOPIC MODEL
 	#print texts[1]
 	frequency = defaultdict(int)
 	for text in texts:
